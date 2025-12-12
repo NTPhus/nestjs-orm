@@ -55,7 +55,7 @@ export class ItemsService {
         const comments = updateItemDto.comments.map((createCommentDto) => new Comment(createCommentDto));
         item.comments = comments;
         await this.entityManager.save(item);
-        throw new Error();
+        // throw new Error();
         const tagContent = `${Math.random()}`;
         const tag = new Tag({content: tagContent});
         await entityManager.save(tag);
