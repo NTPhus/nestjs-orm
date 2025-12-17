@@ -1,9 +1,9 @@
+import { Tag } from './src/modules/items/entities/tag.entities';
+import { Listing } from './src/modules/items/entities/listing.entity';
+import { Item } from './src/modules/items/entities/item.entity';
+import { Comment } from './src/modules/items/entities/comment.entity';
 import { ConfigService } from '@nestjs/config';
 import { config } from "dotenv";
-import { Comment } from './src/items/entities/comment.entity';
-import { Item } from './src/items/entities/item.entity';
-import { Listing } from './src/items/entities/listing.entity';
-import { Tag } from './src/items/entities/tag.entities';
 import { DataSource } from "typeorm";
 
 config();
