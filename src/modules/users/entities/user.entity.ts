@@ -1,5 +1,5 @@
-import { AbstractEntity } from "src/database/abstract.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { AbstractEntity } from "../../../database/abstract.entity";
+import { Column, Entity, OneToMany } from "typeorm";
 import { Orders } from "./orders.entity";
 import { Exclude } from "class-transformer";
 

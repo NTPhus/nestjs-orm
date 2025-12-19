@@ -1,8 +1,9 @@
-import { logger } from 'src/logs/logger';
+import { CacheService } from './../redis/cache.service';
+import { logger } from '../../logs/logger';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity";
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { EntityManager, MoreThan, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -18,16 +19,23 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly entityManager: EntityManager,
     @InjectRepository(RefreshToken) private readonly RefreshTokenRepository: Repository<RefreshToken>,
-    private jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly cacheService: CacheService
   ) { }
 
   async create(createUserDto: CreateUserDto) {
     const name = createUserDto.name;
     const email = createUserDto.email;
     const password = await bcrypt.hash(createUserDto.password, 12);
+
     const user = new User({
       name, email, password
     });
+
+    const exists = await this.userRepository.findOneBy({ email: email })
+
+    if (exists) throw new ConflictException("This email is exist");
+
     await this.entityManager.save(user);
     return 'This action adds a new User';
   }
@@ -71,12 +79,23 @@ export class UsersService {
   async getUser(userId: number) {
     logger.info('GET /hello');
 
+    const cached = await this.cacheService.get(String(userId));
+    if (cached) return cached;
+
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) throw new NotFoundException();
     // const { password, ...result } = user;
+    await this.cacheService.set(String(userId), user, 120);
 
     return user;
+  }
+
+  async getAllUsers() {
+    const user = await this.userRepository.findOneBy({ id: 1 });
+    if(!user) return;
+    const { password, ...result } = user;
+    return result;
   }
 
   async getOrders(userId: number) {

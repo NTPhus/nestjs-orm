@@ -5,3 +5,8 @@ services:
       - .env
     ports:
       - '3306:3306'
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'

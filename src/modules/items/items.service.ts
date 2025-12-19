@@ -17,13 +17,13 @@ export class ItemsService {
     const listing = new Listing({
       ...createItemDto.listing, rating: 0,
     });
-  
+
     const tags = createItemDto.tags.map(createTagDto => new Tag(createTagDto))
 
     const item = new Item({
-      ...createItemDto, comments: [],tags, listing
+      ...createItemDto, comments: [], tags, listing
     });
-    
+
     await this.entityManager.save(item);
     return 'This action adds a new item';
   }
@@ -35,7 +35,7 @@ export class ItemsService {
   async findOne(id: number) {
     return this.itemsRepository.findOne({
       where: { id },
-      relations: {listing: true, comments:true, tags: true}
+      relations: { listing: true, comments: true, tags: true }
     });
   }
 

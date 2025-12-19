@@ -1,18 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { UsersService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { createUserSchema } from './dto/create-user.dto';
+import type { CreateUserDto } from './dto/create-user.dto';
 import { LoginUser } from './dto/login-user.dto';
 import type { Request, Response } from 'express';
-import { JwtAuthGuard } from 'src/guards/auth.guard';
-import { UserInterceptor } from 'src/interceptors/user.interceptor';
-import { UserDecorator } from 'src/decorators/user.decorator';
+import { JwtAuthGuard } from '../../guards/auth.guard';
+import { UserInterceptor } from '../../interceptors/user.interceptor';
+import { UserDecorator } from '../../decorators/user.decorator';
 import { User } from './entities/user.entity';
+import { ZodValidationPipe } from '../../pipes/zod-validation.pipe';
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly userService: UsersService) { }
 
   @Post("register")
+  @UsePipes(new ZodValidationPipe(createUserSchema))
   register(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
@@ -56,6 +59,11 @@ export class UserController {
   @Get('info')
   get(@UserDecorator() user: User) {
     return this.userService.getUser(user.id);
+  }
+
+  @Get('allUser')
+  async getAllUsers(){
+    return await this.userService.getAllUsers();
   }
 
   @Get('order')
